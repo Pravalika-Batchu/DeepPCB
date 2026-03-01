@@ -1,64 +1,65 @@
-# DeepPCB
-DeepPCB: a dataset contains 1,500 image pairs, each of which consists of a defect-free template image and an aligned tested image with annotations including positions of 6 most common types of PCB defects: open, short, mousebite, spur, pin hole and spurious copper.
+# AI-based PCB Inspection: Automated Quality Assurance System for Mission-Critical Defense Electronics
 
-## Dataset Description
-### Image Collection
-All the images in this dataset are obtained from a linear scan CCD in resolution around 48 pixels per 1 millimetre. The defect-free template images are manually checked and cleaned from sampled images in the above manner. The original size of the template and tested image is around 16k x 16k pixels. Then they are cropped into many sub-images with size of 640 x 640 and aligned through template matching techniques. Next, a threshold is carefully selected to employ binarization to avoid illumination disturbance. Notice that pre-processing algorithms can be various according to the specific PCB defect detection algorithms, however, the image registration and thresholding techniques are common process for high-accuracy PCB defect localization and classification. An example pair in DeepPCB dataset is illustrated in the following figure, where the right one is the defect-free template image and the left one is the defective tested image with the ground truth annotations.
-<div align=center><img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/test.jpg" width="375" style="margin:20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/template.jpg" width="375" style="margin:20"> 
- </div>
-<div align=center>
- an example of the tested image 
- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
- the corresponding template image
- </div>
+**Team:**
+- 1602-23-733-109 – T. Sai Vikhil Reddy
+- 1602-23-733-118 – M. Sneha Reddy
+- 1602-23-733-308 – B. Pravalika
+**Under Guidance:** Dr. T. Adilakshmi, Professor & HOD, Dept of CSE
+
+---
+
+## Abstract
+Printed Circuit Boards (PCBs) are the backbone of modern electronic and defense systems, where even microscopic defects can lead to intermittent connectivity, degraded performance, or catastrophic system failure. Traditional inspection methods such as Automated Optical Inspection (AOI) and X-ray imaging are widely used to detect assembly defects, but with the increasing miniaturization and density of PCBs—especially in mission-critical applications—there is a growing need for intelligent, automated inspection systems capable of reliably identifying fine-grained defects across multiple defect categories.
+
+In this project, the primary focus is on **trace defects** (shorts, opens, pinholes, and mouse bites), which directly affect the copper conductive paths responsible for electrical continuity and signal integrity. The work addresses the challenge of accurately detecting and localizing micro-level trace anomalies while minimizing false negatives that could compromise system reliability.
+
+To solve this problem, the project adopts an AI-based computer vision methodology using labeled PCB datasets containing normal and defective trace samples. The pipeline includes image preprocessing techniques, mask generation, and deep learning models (CNN classifiers, Object Detectors, and Segmentation Networks) designed for integration into AOI or edge-based inspection setups with continuous learning capability.
+
+---
+
+## 🚀 Current Progress & Completed Phases
+
+**1. Dataset Setup:** 
+Incorporating the DeepPCB dataset containing 1,500 image pairs of normal and defective traces mapped to 6 common PCB defect classes.
+
+**2. Image Preprocessing Pipeline (`preprocess_pcb.py`):**
+- Created scripts for automated image enhancements.
+- **Denoising:** Applied Gaussian Blur.
+- **Contrast Enhancement:** Used CLAHE (Contrast Limited Adaptive Histogram Equalization) on the LAB color space to isolate complex and tiny features from background illumination.
+
+**3. Dataset Mask Formulation (`generate_masks.py`):**
+- Generated an annotation parser that translates bounding box coordinate values into binary segmentation masks mapping spatial defects accurately for spatial-heavy algorithms like U-Net. 
+
+**4. Evaluation Ecosystem (`evaluation/`):**
+- Setup base evaluation functions supporting mAP (mean Average Precision) and customized F-score metrics across intersection-over-union (IoU) thresholds.
+
+---
+
+## 🛠️ Upcoming Enhancements (To-Do)
+
+**1. PyTorch / TensorFlow Dataloaders:**
+Develop model-agnostic dataset classes to batch preprocessed images along with their respective masks or bounding boxes into tensors optimized for memory bandwidth over GPUs.
+
+**2. Deep Learning Modeling Phase:**
+Implementation of the core AI models tailored for the dataset:
+- **Segmentation Strategy:** Building models like **U-Net** and **Mask R-CNN** that assign pixel-wise classes (detecting exact bounding borders around traces).
+- **Detection Strategy:** Building optimized detectors like **YOLO** families to handle low latency predictions suitable for real-time Automated Optical Inspections.
+
+**3. Pipeline Training & Convergence Logs:**
+Creating training scripts handling optimizer setups (Adam/AdamW) and defining specialized loss functions suitable for highly imbalanced object detection configurations (using Dice Loss for semantic segmentation or Focal Loss to amplify hard-to-detect microscopic targets).
+
+**4. Model Inference & User Reporting System:**
+A visualization loop feeding real-world incoming PCB components into the inferencer to highlight errors interactively for end users or manufacturing automated sorting channels.
+
+---
+
+## About The DeepPCB Dataset (Original Source Context)
+DeepPCB is a dataset containing 1,500 image pairs, each of which consists of a defect-free template image and an aligned tested image with annotations including positions of 6 most common types of PCB defects: open, short, mousebite, spur, pin hole and spurious copper.
 
 ### Image Annotation
-We use the axis-aligned bounding box with a class ID for each defect in the tested images. As illustrated in the above, we annotate six common types of PCB defects: open, short, mousebite, spur, pin hole and spurious copper. Since there is only a few defects in the real tested image, we manually argument some artificial defects on each tested image according to the PCB defect patterns, which leads to around 3 to 12 defects in each 640 x 640 image. The number of PCB defects is shown in the following figure. We separate 1,000 images as training set and the remains as test set.
+Each annotated image owns an annotation file with the same filename. Each defect on the tested image is annotated as the format `x1, y1, x2, y2, type`, where `(x1,y1)` and `(x2,y2)` are the top-left and bottom-right corners of the bounding box. `type` is an integer ID: **1-open, 2-short, 3-mousebite, 4-spur, 5-copper, 6-pin-hole**.
 
-Each annotated image owns an annotation file with the same filename, e.g.**_00041000_test.jpg_**, **_00041000_temp.jpg_** and **_00041000.txt_** are the tested image, template image and the corresponding annotation file. Each defect on the tested image are annotated as the format:**_x1,y1,x2,y2,type_** , where **_(x1,y1)_** and **_(x2,y2)_** is the top left and the bottom right corner of the bounding box of the defect. **_type_** is an integer ID that follows the matches: **0-background (not used), _1-open, 2-short, 3-mousebite, 4-spur, 5-copper, 6-pin-hole_**.
-<div align=center>
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/CountPCB.png" width="560"> 
- </div>
+### Benchmarks Available
+The average precision rate and F-score are used for evaluation. A detection is considered correct if the Intersection over Union (IoU) between the detected box and ground truth is > 0.33.
 
- The annotation tool is now available with the source code in the **_./tools_** directory.
- 
-### Benchmarks
-The average precision rate and F-score are used for evaluation. A detection is correct only if the intersection of unit (IoU) between the detected bounding box and any of the ground truth box with the same class is larger than 0.33. F-score is calculated as: F-score=2PR/(P+R), where P and R is the precision and recall rate. Notice that F-score is threshold-sensitive, which means you could adjust your score threshold to obtain a better result. Although F-score is not as fair as the mAP criteria but more practical since a threshold should always be given when deploying the model and not all of the algorithms have a score evaluation for the target. Thus, F-score and mAP are both under consideration in the benchmarks. 
-
-The evaluation script for mAP and F-score are borrowed from [Icdar2015 evaluation scripts](http://rrc.cvc.uab.es/?ch=4&com=mymethods&task=1) with small modification (You may first register an account.). Here, we give the modified evaluation scripts and the ground truth _gt.zip_ file of the test set in _evaluation/_ directory. You can evaluate your own method by following instructions:
-* run your algorithm and save the detect result for each image named as *image_name.txt*, where the *image_name* should be exactly the same as in the *gt.zip*. You should follow the format of *evaluation/gt.zip* except that the output description of each defect from your algorithm should be: **_x1,y1,x2,y2,confidence,type_** , where **_(x1,y1)_** and **_(x2,y2)_** is the top left and the bottom right corner of the bounding box of the defect. **_confidence_** is a float number to show how confident you believe such detection result. **_type_** is a string and should be one of the following: **_open,short,mousebite,spur,copper,pin-hole_**. **Notice there is no space except the comma**.
-* zip your **_.txt_** file to **_res.zip_**. (You should not contain any sub-directory in the **_res.zip_** file)
-* run the evaluation script: *python script.py -s=res.zip -g=gt.zip*
-
-
-## Approach
-This section with the source code will be public after the acceptance of the paper.
-
-### Experiment results
-Here we show some results of our model based on deep neural network. Our model achieves **_98.6% mAp, 98.2% F-score @ 62FPS_**. More statistic analysis will be public after the acceptance of the paper. The green bounding box is the predicted location of the PCB defect with the confidence on the top of each.
-
-Result pair 1:
-<div align=center><img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_test1.jpg" width="375" style="margin:20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_temp1.jpg" width="375" style="margin:20"> 
- </div>
-Result pair 2:
-<div align=center><img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_test2.jpg" width="375" style="margin:20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_temp2.jpg" width="375" style="margin:20"> 
- </div>
- Result pair 3:
-<div align=center><img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_test3.jpg" width="375" style="margin:20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_temp3.jpg" width="375" style="margin:20"> 
- </div>
- Result pair 4:
-<div align=center><img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_test4.jpg" width="375" style="margin:20">
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="https://github.com/tangsanli5201/DeepPCB/blob/master/fig/result/result_temp4.jpg" width="375" style="margin:20"> 
- </div>
-
-#### Notification
-This work is contributed by the paper **_On-line PCB Defect Detector On A New PCB Defect Dataset_**. You can only use this dataset for research purpose.
+*The evaluation scripts in `evaluation/` can be run against predicted boundary coordinates.*
