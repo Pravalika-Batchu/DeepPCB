@@ -1,11 +1,5 @@
 # AI-based PCB Inspection: Automated Quality Assurance System for Mission-Critical Defense Electronics
 
-**Team:**
-- 1602-23-733-109 – T. Sai Vikhil Reddy
-- 1602-23-733-118 – M. Sneha Reddy
-- 1602-23-733-308 – B. Pravalika
-**Under Guidance:** Dr. T. Adilakshmi, Professor & HOD, Dept of CSE
-
 ---
 
 ## Abstract
@@ -62,4 +56,3 @@ Each annotated image owns an annotation file with the same filename. Each defect
 ### Benchmarks Available
 The average precision rate and F-score are used for evaluation. A detection is considered correct if the Intersection over Union (IoU) between the detected box and ground truth is > 0.33.
 
-*The evaluation scripts in `evaluation/` can be run against predicted boundary coordinates.*
